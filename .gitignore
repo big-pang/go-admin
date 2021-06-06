@@ -1,0 +1,11 @@
+go-admin.*exe*
+go-admin
+go_admin
+static/uploads/*
+.idea/*
+main.exe
+main
+vendor/*
+go.sum
+lastupdate.tmp
+config.yaml
