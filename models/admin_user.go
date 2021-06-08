@@ -6,18 +6,19 @@ import (
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/server/web/context"
 	"strings"
+	"time"
 )
 
 // AdminUser struct
 type AdminUser struct {
-	Id        int     `orm:"column(id);auto;size(11)" description:"表ID" json:"id"`
-	Username  string  `orm:"column(username);size(30)" description:"用户名" json:"username"`
-	Password  string  `orm:"column(password);size(255)" description:"密码" json:"password"`
-	Nickname  string  `orm:"column(nickname);size(30)" description:"昵称" json:"nickname"`
-	Avatar    string  `orm:"column(avatar);size(255)" description:"头像" json:"avatar"`
-	Role      string  `orm:"column(role);size(200)" description:"角色" json:"role"`
-	Status    int8    `orm:"column(status);size(1)" description:"是否启用 0：否 1：是" json:"status"`
-	DeletedAt *string `orm:"column(deleted_at);default(null)" description:"删除时间" json:"deleted_at"`
+	Id        int        `orm:"column(id);auto;size(11);description(表ID)" json:"id"`
+	Username  string     `orm:"column(username);size(30);description(用户名)" json:"username"`
+	Password  string     `orm:"column(password);size(255);description(密码)" json:"password"`
+	Nickname  string     `orm:"column(nickname);size(30);description(昵称)" json:"nickname"`
+	Avatar    string     `orm:"column(avatar);size(255);description(头像)" json:"avatar"`
+	Role      string     `orm:"column(role);size(200);description(角色)" json:"role"`
+	Status    int8       `orm:"column(status);size(1);description(是否启用 0：否 1：是)" json:"status"`
+	DeletedAt *time.Time `orm:"column(deleted_at);type(timestamp);default(NULL);description(删除时间)" json:"deleted_at"`
 }
 
 // TableName 自定义table 名称

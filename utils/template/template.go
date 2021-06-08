@@ -10,6 +10,7 @@ import (
 
 func init() {
 	beego.AddFuncMap("UnixTimeForFormat", UnixTimeForFormat)
+	beego.AddFuncMap("TimeForFormat", TimeForFormat)
 	beego.AddFuncMap("FormatSize", FormatSize)
 }
 
@@ -18,6 +19,13 @@ func UnixTimeForFormat(timeUnix int) string {
 	//转化所需模板
 	timeLayout := "2006-01-02 15:04:05"
 	return time.Unix(int64(timeUnix), 0).Format(timeLayout)
+}
+
+// TimeForFormat 时间转时间字符串
+func TimeForFormat(t time.Time) string {
+	//转化所需模板
+	timeLayout := "2006-01-02 15:04:05"
+	return t.Format(timeLayout)
 }
 
 // FormatSize 格式化文件大小单位

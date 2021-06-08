@@ -75,7 +75,7 @@ func (uc *UserController) Export() {
 			} else {
 				record = append(record, "否")
 			}
-			record = append(record, item.CreatedAt)
+			record = append(record, item.CreatedAt.Format(utils.TimeLayout))
 			body = append(body, record)
 		}
 		uc.Ctx.ResponseWriter.Header().Set("a", "b")

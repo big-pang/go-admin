@@ -6,25 +6,26 @@ import (
 	"go-admin/utils"
 	"math"
 	"strconv"
+	"time"
 )
 
 // Attachment struct
 type Attachment struct {
-	Id           int     `orm:"column(id);auto;size(11)" description:"表ID"`
-	AdminUserId  int     `orm:"column(admin_user_id);size(11);default(0)" description:"后台用户id"`
-	UserId       int     `orm:"column(user_id);size(11);default(0)" description:"前台用户ID"`
-	OriginalName string  `orm:"column(original_name);size(200)" description:"原文件名"`
-	SaveName     string  `orm:"column(save_name);size(200)" description:"保存文件名"`
-	SavePath     string  `orm:"column(save_path);size(255)" description:"系统完整路径"`
-	Url          string  `orm:"column(url);size(255)" description:"图片访问路径"`
-	Extension    string  `orm:"column(extension);size(100)" description:"后缀"`
-	Mime         string  `orm:"column(mime);size(100)" description:"类型"`
-	Size         int64   `orm:"column(size);size(20);default(0)" description:"大小"`
-	Md5          string  `orm:"column(md5);size(32);default(\"\")" description:"MD5"`
-	Sha1         string  `orm:"column(sha1);size(40);default(\"\")" description:"SHA1"`
-	CreatedAt    string  `orm:"column(created_at);default(CURRENT_TIMESTAMP)" description:"操作时间"`
-	UpdatedAt    string  `orm:"column(updated_at);default(CURRENT_TIMESTAMP)" description:"更新时间"`
-	DeletedAt    *string `orm:"column(deleted_at);size(10);default(0)" description:"删除时间"`
+	Id           int        `orm:"column(id);auto;size(11);description(表ID)" json:"id"`
+	AdminUserId  int        `orm:"column(admin_user_id);size(11);default(0);description(后台用户id)" json:"admin_user_id"`
+	UserId       int        `orm:"column(user_id);size(11);default(0);description(前台用户ID)" json:"user_id"`
+	OriginalName string     `orm:"column(original_name);size(200);description(原文件名)" json:"original_name"`
+	SaveName     string     `orm:"column(save_name);size(200);description(保存文件名)" json:"save_name"`
+	SavePath     string     `orm:"column(save_path);size(255);description(系统完整路径)" json:"save_path"`
+	Url          string     `orm:"column(url);size(255);description(图片访问路径)" json:"url"`
+	Extension    string     `orm:"column(extension);size(100);description(后缀)" json:"extension"`
+	Mime         string     `orm:"column(mime);size(100);description(类型)" json:"mime"`
+	Size         int64      `orm:"column(size);size(20);default(0);description(大小)" json:"size"`
+	Md5          string     `orm:"column(md5);size(32);default(\"\");description(MD5)" json:"md5"`
+	Sha1         string     `orm:"column(sha1);size(40);default(\"\");description(SHA1)" json:"sha1"`
+	CreatedAt    time.Time  `orm:"column(created_at);type(timestamp);default(CURRENT_TIMESTAMP);description(创建时间)" json:"created_at"`
+	UpdatedAt    time.Time  `orm:"column(updated_at);type(timestamp);default(CURRENT_TIMESTAMP);description(更新时间)" json:"updated_at"`
+	DeletedAt    *time.Time `orm:"column(deleted_at);type(timestamp);default(NULL);description(删除时间)" json:"deleted_at"`
 }
 
 // TableName 自定义table 名称

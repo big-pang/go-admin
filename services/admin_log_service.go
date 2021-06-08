@@ -32,8 +32,8 @@ func (*AdminLogService) CreateAdminLog(loginUser *models.AdminUser, menu *models
 	adminLog.LogMethod = menu.LogMethod
 	adminLog.Url = url
 	adminLog.LogIp = ctx.Input.IP()
-	adminLog.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
-	adminLog.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+	adminLog.CreatedAt = time.Now()
+	adminLog.UpdatedAt = time.Now()
 
 	o := orm.NewOrm()
 	//开启事务
@@ -69,8 +69,8 @@ func (*AdminLogService) LoginLog(loginUserID int, ctx *context.Context) {
 	adminLog.Url = "admin/auth/login"
 	adminLog.LogMethod = "POST"
 	adminLog.LogIp = ctx.Input.IP()
-	adminLog.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
-	adminLog.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+	adminLog.CreatedAt = time.Now()
+	adminLog.UpdatedAt = time.Now()
 
 	o := orm.NewOrm()
 

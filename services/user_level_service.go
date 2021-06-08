@@ -4,7 +4,6 @@ import (
 	"github.com/beego/beego/v2/client/orm"
 	"go-admin/formvalidate"
 	"go-admin/models"
-	"go-admin/utils"
 	"go-admin/utils/page"
 	"net/url"
 	"time"
@@ -48,8 +47,8 @@ func (*UserLevelService) Create(form *formvalidate.UserLevelForm) int {
 		Name:        form.Name,
 		Description: form.Description,
 		Status:      int8(form.Status),
-		CreatedAt:   utils.UnixTimeForFormat(int(time.Now().Unix())),
-		UpdatedAt:   utils.UnixTimeForFormat(int(time.Now().Unix())),
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 	if form.Img != "" {
 		userLevel.Img = form.Img
@@ -70,7 +69,7 @@ func (*UserLevelService) Update(form *formvalidate.UserLevelForm) int {
 		userLevel.Name = form.Name
 		userLevel.Description = form.Description
 		userLevel.Status = int8(form.Status)
-		userLevel.UpdatedAt = utils.UnixTimeForFormat(int(time.Now().Unix()))
+		userLevel.UpdatedAt = time.Now()
 		if form.Img != "" {
 			userLevel.Img = form.Img
 		}

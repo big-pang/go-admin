@@ -6,11 +6,11 @@ import (
 
 // AdminRole struct
 type AdminRole struct {
-	Id          int    `orm:"column(id);auto;size(11)" description:"表ID"`
-	Name        string `orm:"column(name);size(50)" description:"名称"`
-	Description string `orm:"column(description);size(100)" description:"简介"`
-	Url         string `orm:"column(url);size(1000)" description:"权限"`
-	Status      int8   `orm:"column(status);size(1);default(1)" description:"是否启用 0：否 1：是"`
+	Id          int    `orm:"column(id);auto;size(11);description(表ID)" json:"id"`
+	Name        string `orm:"column(name);size(50);description(名称)" json:"name"`
+	Description string `orm:"column(description);size(100);description(简介)" json:"description"`
+	Url         string `orm:"column(url);size(1000);description(权限)" json:"url"`
+	Status      int8   `orm:"column(status);size(1);default(1);description(是否启用 0：否 1：是)" json:"status"`
 }
 
 // SearchField 定义模型的可搜索字段

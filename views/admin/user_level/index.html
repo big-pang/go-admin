@@ -99,7 +99,7 @@
                             <td><img style="max-width: 40px" src="{{$item.Img}}"></td>
                             <td>{{if eq $item.Status 1}} <span class="label label-success">是</span> {{else}}
                                     <span class="label label-warning">否</span> {{end}}</td>
-                            <td>{{$item.CreatedAt | UnixTimeForFormat}}</td>
+                            <td>{{$item.CreatedAt | TimeForFormat}}</td>
 
                             <td class="td-do">
                                 <a href="/admin/user_level/edit?id={{$item.Id}}"

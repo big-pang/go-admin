@@ -2,22 +2,23 @@ package models
 
 import (
 	"github.com/beego/beego/v2/client/orm"
+	"time"
 )
 
 // User struct
 type User struct {
-	Id          int     `orm:"column(id);auto;size(11)" description:"表ID" json:"id"`
-	Avatar      string  `orm:"column(avatar);size(255)" description:"头像" json:"avatar"`
-	Username    string  `orm:"column(username);size(30)" description:"用户名" json:"username"`
-	Nickname    string  `orm:"column(nickname);size(30)" description:"昵称" json:"nickname"`
-	Mobile      string  `orm:"column(mobile);size(11)" description:"手机号" json:"mobile"`
-	UserLevelId int     `orm:"column(user_level_id);size(11);default(1)" description:"用户等级" json:"user_level_id"`
-	Password    string  `orm:"column(password);size(255)" description:"密码" json:"password"`
-	Status      int8    `orm:"column(status);size(1);default(1)" description:"是否启用 0：否 1：是" json:"status"`
-	Description string  `orm:"column(description);type(text)" description:"描述" json:"description"`
-	CreatedAt   string  `orm:"column(created_at);default(CURRENT_TIMESTAMP)" description:"操作时间" json:"created_at"`
-	UpdatedAt   string  `orm:"column(updated_at);type(timestamp);default(CURRENT_TIMESTAMP)" description:"更新时间" json:"updated_at"`
-	DeletedAt   *string `orm:"column(deleted_at);default(NULL)" description:"删除时间" json:"deleted_at"`
+	Id          int        `orm:"column(id);auto;size(11);description(表ID)" json:"id"`
+	Avatar      string     `orm:"column(avatar);size(255);description(头像)" json:"avatar"`
+	Username    string     `orm:"column(username);size(30);description(用户名)" json:"username"`
+	Nickname    string     `orm:"column(nickname);size(30);description(昵称)" json:"nickname"`
+	Mobile      string     `orm:"column(mobile);size(11);description(手机号)" json:"mobile"`
+	UserLevelId int        `orm:"column(user_level_id);size(11);default(1);description(用户等级)" json:"user_level_id"`
+	Password    string     `orm:"column(password);size(255);description(密码)" json:"password"`
+	Status      int8       `orm:"column(status);size(1);default(1);description(是否启用 0：否 1：是)" json:"status"`
+	Description string     `orm:"column(description);type(text);description(描述)" json:"description"`
+	CreatedAt   time.Time  `orm:"column(created_at);type(timestamp);default(CURRENT_TIMESTAMP);description(创建时间)" json:"created_at"`
+	UpdatedAt   time.Time  `orm:"column(updated_at);type(timestamp);default(CURRENT_TIMESTAMP);description(更新时间)" json:"updated_at"`
+	DeletedAt   *time.Time `orm:"column(deleted_at);type(timestamp);default(NULL);description(删除时间)" json:"deleted_at"`
 }
 
 // TableName 自定义table 名称

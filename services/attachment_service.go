@@ -71,8 +71,8 @@ func (*AttachmentService) Upload(ctx *context.Context, name string, adminUserId 
 		Size:         h.Size,
 		Md5:          utils.GetMd5String(saveName),
 		Sha1:         utils.GetSha1String(saveName),
-		CreatedAt:    time.Now().Format(utils.TimeLayout),
-		UpdatedAt:    time.Now().Format(utils.TimeLayout),
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
 	}
 
 	insertID, err := orm.NewOrm().Insert(&attachmentInfo)
@@ -152,8 +152,8 @@ func (*AttachmentService) UploadMulti(ctx *context.Context, name string, adminUs
 			Size:         h.Size,
 			Md5:          utils.GetMd5String(saveName),
 			Sha1:         utils.GetSha1String(saveName),
-			CreatedAt:    time.Now().Format(utils.TimeLayout),
-			UpdatedAt:    time.Now().Format(utils.TimeLayout),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		}
 
 		insertID, err := orm.NewOrm().Insert(&attachmentInfo)

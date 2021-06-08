@@ -39,8 +39,8 @@ func (*UserService) Create(form *formvalidate.UserForm) int {
 		Mobile:      form.Mobile,
 		Description: form.Description,
 		Status:      int8(form.Status),
-		CreatedAt:   time.Now().Format(utils.TimeLayout),
-		UpdatedAt:   time.Now().Format(utils.TimeLayout),
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 	if form.Avatar != "" {
 		user.Avatar = form.Avatar
@@ -92,7 +92,7 @@ func (*UserService) Update(form *formvalidate.UserForm) int {
 		user.Mobile = form.Mobile
 		user.Description = form.Description
 		user.Status = int8(form.Status)
-		user.UpdatedAt = time.Now().Format(utils.TimeLayout)
+		user.UpdatedAt = time.Now()
 
 		if form.Avatar != "" {
 			user.Avatar = form.Avatar

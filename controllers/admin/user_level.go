@@ -50,7 +50,7 @@ func (ulc *UserLevelController) Export() {
 			} else {
 				record = append(record, "否")
 			}
-			record = append(record, item.CreatedAt)
+			record = append(record, item.CreatedAt.Format(utils.TimeLayout))
 			body = append(body, record)
 		}
 		ulc.Ctx.ResponseWriter.Header().Set("a", "b")
