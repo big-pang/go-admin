@@ -1,6 +1,6 @@
 package conf
 
-// ueditor配置数据
+// Ueditor ueditor配置数据
 type Ueditor struct {
 	ImageActionName         string `mapstructure:"image_action_name" json:"image_action_name" yaml:"image_action_name"`
 	ImageFieldName          string `mapstructure:"image_field_name" json:"image_field_name" yaml:"image_field_name"`

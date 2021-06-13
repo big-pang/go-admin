@@ -5,6 +5,7 @@ import (
 	"github.com/beego/beego/v2/server/web/context"
 	"github.com/dchest/captcha"
 	adminControllers "go-admin/controllers/admin"
+	apiControllers "go-admin/controllers/api"
 	"go-admin/middleware"
 	"net/http"
 )
@@ -151,6 +152,10 @@ func init() {
 		//用户管理-导出
 		web.NSRouter("/user/export", &adminControllers.UserController{}, "get:Export"),
 	)
+	api := web.NewNamespace("/api",
+		web.NSRouter("/location_and_time", &apiControllers.LocationController{}, "get:LocationAndTime"),
+	)
 
+	web.AddNamespace(api)
 	web.AddNamespace(admin)
 }

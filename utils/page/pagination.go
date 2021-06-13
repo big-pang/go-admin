@@ -27,7 +27,7 @@ type Pagination struct {
 	Parameters url.Values
 }
 
-//每页数量
+// Paginate 每页数量
 //config配置参数
 //  page:当前页,
 //  path:url路径,

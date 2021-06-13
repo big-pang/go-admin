@@ -9,3 +9,6 @@ vendor/*
 go.sum
 lastupdate.tmp
 config.yaml
+
+
+qqzeng-ip-utf8.dat

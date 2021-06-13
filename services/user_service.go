@@ -131,9 +131,11 @@ func (*UserService) Disable(ids []int) int {
 
 // Del 删除
 func (*UserService) Del(ids []int) int {
-	count, err := orm.NewOrm().QueryTable(new(models.User)).Filter("id__in", ids).Delete()
+	num, err := orm.NewOrm().QueryTable(new(models.User)).Filter("id__in", ids).Update(orm.Params{
+		"deleted_at": time.Now(),
+	})
 	if err == nil {
-		return int(count)
+		return int(num)
 	}
 	return 0
 }
