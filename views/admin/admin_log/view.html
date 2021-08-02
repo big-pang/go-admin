@@ -1,0 +1,52 @@
+<!-- 这里写内容即可 -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="box">
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-bordered table-striped">
+                    <tbody>
+                    <tr>
+                        <th colspan="4" class="text-bold text-center">日志摘要</th>
+                    </tr>
+                    <tr>
+                        <td class="text-bold">日志ID</td>
+                        <td>{{.data.ID}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-bold">操作用户</td>
+                        <td>{{.data.AdminUser.Nickname}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-bold">操作</td>
+                        <td>{{.data.Name}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-bold">url</td>
+                        <td>{{.data.URL}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-bold">类型</td>
+                        <td>{{.data.LogMethod}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-bold">ip</td>
+                        <td>{{.data.LogIP}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-bold">时间</td>
+                        <td>{{.data.CreatedAt | TimeForFormat}}</td>
+                    </tr>
+                    <tr style="border-top:2px solid #d2d6de;">
+                        <th colspan="2" class="text-bold text-center">数据详情</th>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <pre>{{if .data.Data}}{{.data.Data.Data | FormLogData}}{{else}}{{end}}</pre>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

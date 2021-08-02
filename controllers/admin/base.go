@@ -3,7 +3,7 @@ package admin
 import (
 	beego "github.com/beego/beego/v2/adapter"
 	"go-admin/global"
-	"go-admin/models"
+	"go-admin/models_gorm"
 	"go-admin/services"
 	"net/url"
 	"strconv"
@@ -24,7 +24,7 @@ var (
 	//后台变量
 	admin map[string]interface{}
 	//当前用户
-	loginUser models.AdminUser
+	loginUser models_gorm.AdminUsers
 	//参数
 	gQueryParams url.Values
 )
@@ -53,7 +53,7 @@ func (bc *baseController) Prepare() {
 
 	//登录用户
 	var isOk bool
-	loginUser, isOk = bc.GetSession(global.LOGIN_USER).(models.AdminUser)
+	loginUser, isOk = bc.GetSession(global.LOGIN_USER).(models_gorm.AdminUsers)
 
 	//基础变量
 	runMode := beego.AppConfig.String("runmode")

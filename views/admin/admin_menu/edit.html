@@ -15,7 +15,7 @@
 
                 <form id="dataForm" class="dataForm form-horizontal" action="/admin/admin_menu/update" method="post"
                       enctype="multipart/form-data">
-                    <input type="hidden" name="id" value="{{.data.Id}}">
+                    <input type="hidden" name="id" value="{{.data.ID}}">
                     <div class="box-body">
                         <div class="fields-group">
                             <div class="form-group">
@@ -40,7 +40,7 @@
                             <div class="form-group">
                                 <label for="url" class="col-sm-2 control-label">url</label>
                                 <div class="col-sm-10 col-md-4">
-                                    <input maxlength="100" id="url" name="url" value="{{.data.Url}}"
+                                    <input maxlength="100" id="url" name="url" value="{{.data.URL}}"
                                            class="form-control" placeholder="菜单url">
                                 </div>
                             </div>
@@ -65,7 +65,7 @@
                                 <div class="col-sm-10 col-md-4">
                                     <div class="input-group">
                                         <input max="9999" min="1" type="number" id="sort_id" name="sort_id"
-                                               value="{{.data.SortId}}"
+                                               value="{{.data.SortID}}"
                                                class="form-control input-number field-number" placeholder="默认1000">
                                     </div>
                                 </div>

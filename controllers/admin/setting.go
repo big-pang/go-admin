@@ -54,19 +54,19 @@ func (sc *SettingController) Update() {
 		case "image", "file":
 			//单个文件上传
 			var attachmentService services.AttachmentService
-			attachmentInfo, err := attachmentService.Upload(sc.Ctx, value.Field, loginUser.Id, 0)
+			attachmentInfo, err := attachmentService.Upload(sc.Ctx, value.Field, loginUser.ID, 0)
 			if err == nil && attachmentInfo != nil {
 				//图片上传成功
-				setting.ContentStrut[key].Content = attachmentInfo.Url
+				setting.ContentStrut[key].Content = attachmentInfo.URL
 			}
 		case "multi_file", "multi_image":
 			//多个文件上传
 			var attachmentService services.AttachmentService
-			attachments, err := attachmentService.UploadMulti(sc.Ctx, value.Field, loginUser.Id, 0)
+			attachments, err := attachmentService.UploadMulti(sc.Ctx, value.Field, loginUser.ID, 0)
 			if err == nil && attachments != nil {
 				var urls []string
 				for _, atta := range attachments {
-					urls = append(urls, atta.Url)
+					urls = append(urls, atta.URL)
 				}
 				if len(urls) > 0 {
 					urlsByte, err := json.Marshal(&urls)

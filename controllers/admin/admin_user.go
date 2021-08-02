@@ -7,7 +7,7 @@ import (
 	"go-admin/formvalidate"
 	"go-admin/global"
 	"go-admin/global/response"
-	"go-admin/models"
+	"go-admin/models_gorm"
 	"go-admin/services"
 	"go-admin/utils"
 	"strconv"
@@ -223,7 +223,7 @@ func (auc *AdminUserController) Del() {
 		response.ErrorWithMessage("参数id错误.", auc.Ctx)
 	}
 
-	noDeletionID := new(models.AdminUser).NoDeletionId()
+	noDeletionID := new(models_gorm.AdminUsers).NoDeletionID()
 
 	m, b := arrayOperations.Intersect(noDeletionID, idArr)
 
@@ -318,15 +318,15 @@ func (auc *AdminUserController) UpdateAvatar() {
 		attachmentService services.AttachmentService
 		adminUserService  services.AdminUserService
 	)
-	attachmentInfo, err := attachmentService.Upload(auc.Ctx, "avatar", loginUser.Id, 0)
+	attachmentInfo, err := attachmentService.Upload(auc.Ctx, "avatar", loginUser.ID, 0)
 	if err != nil || attachmentInfo == nil {
 		response.ErrorWithMessage(err.Error(), auc.Ctx)
 	} else {
 		//头像上传成功，更新用户的avatar头像信息
-		num := adminUserService.UpdateAvatar(loginUser.Id, attachmentInfo.Url)
+		num := adminUserService.UpdateAvatar(loginUser.ID, attachmentInfo.URL)
 		if num > 0 {
 			//修改成功后，更新session的登录用户信息
-			loginAdminUser := adminUserService.GetAdminUserById(loginUser.Id)
+			loginAdminUser := adminUserService.GetAdminUserById(loginUser.ID)
 			auc.SetSession(global.LOGIN_USER, *loginAdminUser)
 			response.SuccessWithMessageAndUrl("修改成功", global.URL_RELOAD, auc.Ctx)
 		} else {

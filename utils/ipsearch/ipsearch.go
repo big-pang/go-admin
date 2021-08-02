@@ -42,7 +42,7 @@ type Location struct {
 	CountryEnglish string  `json:"country_english,omitempty"`
 	CountryCode    string  `json:"country_code,omitempty"`
 	Longitude      float64 `json:"longitude,omitempty"`
-	Latitude       float64 `json:"Latitude,omitempty"`
+	Latitude       float64 `json:"latitude,omitempty"`
 }
 
 var ips *ipSearch = nil

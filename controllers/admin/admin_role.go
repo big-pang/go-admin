@@ -2,12 +2,11 @@ package admin
 
 import (
 	"github.com/adam-hanna/arrayOperations"
-	"github.com/beego/beego/v2/client/orm"
 	"github.com/gookit/validate"
 	"go-admin/formvalidate"
 	"go-admin/global"
 	"go-admin/global/response"
-	"go-admin/models"
+	"go-admin/models_gorm"
 	"go-admin/services"
 	"go-admin/utils"
 	"strconv"
@@ -149,7 +148,7 @@ func (arc *AdminRoleController) Del() {
 
 	var adminRoleService services.AdminRoleService
 
-	noDeletionID := new(models.AdminRole).NoDeletionId()
+	noDeletionID := new(models_gorm.AdminRoles).NoDeletionId()
 
 	m, b := arrayOperations.Intersect(noDeletionID, idArr)
 
@@ -242,24 +241,24 @@ func (arc *AdminRoleController) Access() {
 	data := adminRoleService.GetAdminRoleById(id)
 	menu := adminMenuService.AllMenu()
 
-	menuMap := make(map[int]orm.Params)
+	menuMap := make(map[int]models_gorm.Params)
 
 	for _, adminMenu := range menu {
-		id := adminMenu.Id
+		id := adminMenu.ID
 		if menuMap[id] == nil {
-			menuMap[id] = make(orm.Params)
+			menuMap[id] = make(models_gorm.Params)
 		}
 		menuMap[id]["Id"] = id
-		menuMap[id]["ParentId"] = adminMenu.ParentId
+		menuMap[id]["ParentID"] = adminMenu.ParentID
 		menuMap[id]["Name"] = adminMenu.Name
-		menuMap[id]["Url"] = adminMenu.Url
+		menuMap[id]["Url"] = adminMenu.URL
 		menuMap[id]["Icon"] = adminMenu.Icon
 		menuMap[id]["IsShow"] = adminMenu.IsShow
-		menuMap[id]["SortId"] = adminMenu.SortId
+		menuMap[id]["SortId"] = adminMenu.SortID
 		menuMap[id]["LogMethod"] = adminMenu.LogMethod
 	}
 
-	html := adminTreeService.AuthorizeHtml(menuMap, strings.Split(data.Url, ","))
+	html := adminTreeService.AuthorizeHtml(menuMap, strings.Split(data.URL, ","))
 
 	arc.Data["data"] = data
 	arc.Data["html"] = html

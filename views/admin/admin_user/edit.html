@@ -13,7 +13,7 @@
                 </div>
                 <form id="dataForm" class="form-horizontal dataForm" action="/admin/admin_user/update" method="post"
                       enctype="multipart/form-data">
-                    <input type="hidden" name="id" value="{{.data.Id}}">
+                    <input type="hidden" name="id" value="{{.data.ID}}">
                     <div class="box-body">
                         <div class="form-group">
                             <label for="role" class="col-sm-2 control-label">角色</label>
@@ -21,9 +21,11 @@
                                 <select name="role[]" id="role" class="form-control field-multi-select"
                                         multiple="multiple">
                                     {{range $key,$item := .roles}}
-                                        <option value="{{$item.Id}}" {{range $key1,$item1 := $.role_arr}}{{if compare $item1 $item.Id}}selected{{end}}{{end}}>
-                                            {{$item.Name}}
-                                        </option>
+                                    <option value="{{$item.ID}}"
+                                            {{range $key1,$item1 :=$.role_arr}}{{if compare $item1
+                                            $item.ID}}selected{{end}}{{end}}>
+                                        {{$item.Name}}
+                                    </option>
                                     {{end}}
                                 </select>
 

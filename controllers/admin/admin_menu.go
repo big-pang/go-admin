@@ -6,7 +6,7 @@ import (
 	"go-admin/formvalidate"
 	"go-admin/global"
 	"go-admin/global/response"
-	"go-admin/models"
+	"go-admin/models_gorm"
 	"go-admin/services"
 	"go-admin/utils"
 	"strconv"
@@ -22,7 +22,6 @@ type AdminMenuController struct {
 func (amc *AdminMenuController) Index() {
 	var adminTreeService services.AdminTreeService
 	amc.Data["data"] = adminTreeService.AdminMenuTree()
-
 	amc.Layout = "admin/public/base.html"
 	amc.TplName = "admin/admin_menu/index.html"
 }
@@ -35,7 +34,7 @@ func (amc *AdminMenuController) Add() {
 	parents := adminTreeService.Menu(parentID, 0)
 
 	amc.Data["parents"] = parents
-	amc.Data["log_method"] = new(models.AdminMenu).GetLogMethod()
+	amc.Data["log_method"] = new(models_gorm.AdminMenus).GetLogMethod()
 
 	amc.Layout = "admin/public/base.html"
 	amc.TplName = "admin/admin_menu/add.html"
@@ -98,12 +97,12 @@ func (amc *AdminMenuController) Edit() {
 		response.ErrorWithMessage("Not Found Info By Id.", amc.Ctx)
 	}
 
-	parentID := adminMenu.ParentId
+	parentID := adminMenu.ParentID
 	parents := adminTreeService.Menu(parentID, 0)
 
 	amc.Data["data"] = adminMenu
 	amc.Data["parents"] = parents
-	amc.Data["log_method"] = new(models.AdminMenu).GetLogMethod()
+	amc.Data["log_method"] = new(models_gorm.AdminMenus).GetLogMethod()
 
 	amc.Layout = "admin/public/base.html"
 	amc.TplName = "admin/admin_menu/edit.html"
@@ -171,7 +170,7 @@ func (amc *AdminMenuController) Del() {
 		response.ErrorWithMessage("有子菜单不可删除！", amc.Ctx)
 	}
 
-	noDeletionID := new(models.AdminMenu).NoDeletionId()
+	noDeletionID := new(models_gorm.AdminMenus).NoDeletionId()
 
 	m, b := arrayOperations.Intersect(noDeletionID, idArr)
 

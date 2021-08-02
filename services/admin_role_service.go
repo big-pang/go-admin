@@ -3,8 +3,9 @@ package services
 import (
 	"github.com/beego/beego/v2/client/orm"
 	"go-admin/formvalidate"
-	"go-admin/models"
-	"go-admin/utils/page"
+	"go-admin/initialize/mysql"
+	"go-admin/models_gorm"
+	"go-admin/utils/page_gorm"
 	"net/url"
 	"strings"
 )
@@ -16,7 +17,8 @@ type AdminRoleService struct {
 
 // GetCount 获取admin_role 总数
 func (*AdminRoleService) GetCount() int {
-	count, err := orm.NewOrm().QueryTable(new(models.AdminRole)).Count()
+	var count int64
+	err := mysql.DB.Model(models_gorm.AdminRoles{}).Count(&count).Error
 	if err != nil {
 		return 0
 	}
@@ -24,20 +26,21 @@ func (*AdminRoleService) GetCount() int {
 }
 
 // GetAllData 获取所有admin role
-func (*AdminRoleService) GetAllData() []*models.AdminRole {
-	var adminRoles []*models.AdminRole
-	orm.NewOrm().QueryTable(new(models.AdminRole)).All(&adminRoles)
+func (*AdminRoleService) GetAllData() []*models_gorm.AdminRoles {
+	var adminRoles []*models_gorm.AdminRoles
+	mysql.DB.Model(models_gorm.AdminRoles{}).Find(&adminRoles)
+
 	return adminRoles
 }
 
 // GetPaginateData 分页获取adminrole
-func (ars *AdminRoleService) GetPaginateData(listRows int, params url.Values) ([]*models.AdminRole, page.Pagination) {
+func (ars *AdminRoleService) GetPaginateData(listRows int, params url.Values) ([]*models_gorm.AdminRoles, page_gorm.Pagination) {
 	//搜索、查询字段赋值
-	ars.SearchField = append(ars.SearchField, new(models.AdminRole).SearchField()...)
+	ars.SearchField = append(ars.SearchField, new(models_gorm.AdminRoles).SearchField()...)
 
-	var adminRole []*models.AdminRole
-	o := orm.NewOrm().QueryTable(new(models.AdminRole))
-	_, err := ars.PaginateAndScopeWhere(o, listRows, params).All(&adminRole)
+	var adminRole []*models_gorm.AdminRoles
+	o := mysql.DB.Model(models_gorm.AdminRoles{})
+	err := ars.PaginateAndScopeWhere(o, listRows, params).Find(&adminRole).Error
 	if err != nil {
 		return nil, ars.Pagination
 	}
@@ -47,31 +50,32 @@ func (ars *AdminRoleService) GetPaginateData(listRows int, params url.Values) ([
 // IsExistName 名称验重
 func (*AdminRoleService) IsExistName(name string, id int) bool {
 	if id == 0 {
-		return orm.NewOrm().QueryTable(new(models.AdminRole)).Filter("name", name).Exist()
+		return orm.NewOrm().QueryTable(new(models_gorm.AdminRoles)).Filter("name", name).Exist()
 	}
-	return orm.NewOrm().QueryTable(new(models.AdminRole)).Filter("name", name).Exclude("id", id).Exist()
+	return orm.NewOrm().QueryTable(new(models_gorm.AdminRoles)).Filter("name", name).Exclude("id", id).Exist()
 }
 
 // Create 创建角色
 func (*AdminRoleService) Create(form *formvalidate.AdminRoleForm) int {
-	adminRole := models.AdminRole{
+	adminRole := models_gorm.AdminRoles{
 		Name:        form.Name,
 		Description: form.Description,
-		Url:         "1,2,18",
+		URL:         "1,2,18",
 		Status:      form.Status,
 	}
 
-	insertID, err := orm.NewOrm().Insert(&adminRole)
+	err := mysql.DB.Model(adminRole).Create(&adminRole).Error
 	if err != nil {
 		return 0
 	}
-	return int(insertID)
+	return int(adminRole.ID)
 }
 
 // GetAdminRoleById 通过id获取菜单信息
-func (*AdminRoleService) GetAdminRoleById(id int) *models.AdminRole {
-	var adminRole models.AdminRole
-	err := orm.NewOrm().QueryTable(new(models.AdminRole)).Filter("id", id).One(&adminRole)
+func (*AdminRoleService) GetAdminRoleById(id int) *models_gorm.AdminRoles {
+	var adminRole models_gorm.AdminRoles
+	err := mysql.DB.Model(adminRole).First(&adminRole, id).Error
+
 	if err == nil {
 		return &adminRole
 	}
@@ -80,55 +84,55 @@ func (*AdminRoleService) GetAdminRoleById(id int) *models.AdminRole {
 
 // Update 更新角色信息
 func (*AdminRoleService) Update(form *formvalidate.AdminRoleForm) int {
-	num, err := orm.NewOrm().QueryTable(new(models.AdminRole)).Filter("id", form.Id).Update(orm.Params{
+	result := mysql.DB.Model(new(models_gorm.AdminRoles)).Where("id = ?", form.Id).Updates(map[string]interface{}{
 		"name":        form.Name,
 		"description": form.Description,
 		"status":      form.Status,
 	})
-	if err == nil {
-		return int(num)
+	if result.Error == nil {
+		return int(result.RowsAffected)
 	}
 	return 0
 }
 
 // Del 删除角色
 func (*AdminRoleService) Del(ids []int) int {
-	count, err := orm.NewOrm().QueryTable(new(models.AdminRole)).Filter("id__in", ids).Delete()
-	if err == nil {
-		return int(count)
+	result := mysql.DB.Where("id in ?", ids).Delete(models_gorm.AdminRoles{})
+	if result.Error == nil {
+		return int(result.RowsAffected)
 	}
 	return 0
 }
 
 // Enable 启用角色
 func (*AdminRoleService) Enable(ids []int) int {
-	num, err := orm.NewOrm().QueryTable(new(models.AdminRole)).Filter("id__in", ids).Update(orm.Params{
+	result := mysql.DB.Model(new(models_gorm.AdminRoles)).Where("id in ?", ids).Updates(map[string]interface{}{
 		"status": 1,
 	})
-	if err == nil {
-		return int(num)
+	if result.Error == nil {
+		return int(result.RowsAffected)
 	}
 	return 0
 }
 
 // Disable 禁用角色
 func (*AdminRoleService) Disable(ids []int) int {
-	num, err := orm.NewOrm().QueryTable(new(models.AdminRole)).Filter("id__in", ids).Update(orm.Params{
+	result := mysql.DB.Model(new(models_gorm.AdminRoles)).Where("id in ?", ids).Updates(map[string]interface{}{
 		"status": 0,
 	})
-	if err == nil {
-		return int(num)
+	if result.Error == nil {
+		return int(result.RowsAffected)
 	}
 	return 0
 }
 
 // StoreAccess 授权菜单
 func (*AdminRoleService) StoreAccess(id int, url []string) int {
-	num, err := orm.NewOrm().QueryTable(new(models.AdminRole)).Filter("id", id).Update(orm.Params{
+	result := mysql.DB.Model(new(models_gorm.AdminRoles)).Where("id = ?", id).Updates(map[string]interface{}{
 		"url": strings.Join(url, ","),
 	})
-	if err == nil {
-		return int(num)
+	if result.Error == nil {
+		return int(result.RowsAffected)
 	}
 	return 0
 }

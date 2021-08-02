@@ -5,7 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
-	beego "github.com/beego/beego/v2/adapter"
+	"github.com/beego/beego/v2/core/logs"
 )
 
 // PKCS5Padding pkcs5padding
@@ -56,7 +56,7 @@ func AesDecrypt(crypted, key []byte) ([]byte, error) {
 func Encrypt(byteData []byte, aeskey []byte) string {
 	xpass, err := AesEncrypt(byteData, aeskey)
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		return ""
 	}
 	return base64.StdEncoding.EncodeToString(xpass)
@@ -66,13 +66,13 @@ func Encrypt(byteData []byte, aeskey []byte) string {
 func Decrypt(encryptData string, aeskey []byte) string {
 	bytesPass, err := base64.StdEncoding.DecodeString(encryptData)
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		return ""
 	}
 
 	decryptData, err := AesDecrypt(bytesPass, aeskey)
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		return ""
 	}
 	return string(decryptData)

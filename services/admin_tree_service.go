@@ -1,8 +1,7 @@
 package services
 
 import (
-	"github.com/beego/beego/v2/client/orm"
-	"go-admin/models"
+	"go-admin/models_gorm"
 	"go-admin/utils"
 	"sort"
 	"strconv"
@@ -13,7 +12,7 @@ import (
 type AdminTreeService struct {
 	Ret   string
 	Html  string
-	Array map[int]orm.Params
+	Array map[int]models_gorm.Params
 	Text  map[string]interface{}
 }
 
@@ -23,7 +22,7 @@ var (
 )
 
 // GetLeftMenu 获取左侧菜单
-func (adminTreeService *AdminTreeService) GetLeftMenu(requestUrl string, user models.AdminUser) string {
+func (adminTreeService *AdminTreeService) GetLeftMenu(requestUrl string, user models_gorm.AdminUsers) string {
 	menu := user.GetShowMenu()
 	maxLevel := 0
 	currentID := 1
@@ -31,8 +30,8 @@ func (adminTreeService *AdminTreeService) GetLeftMenu(requestUrl string, user mo
 
 	for _, v := range menu {
 		if v["Url"].(string) == requestUrl {
-			parentIds = adminTreeService.getMenuParent(menu, int(v["Id"].(int64)), []int{})
-			currentID = int(v["Id"].(int64))
+			parentIds = adminTreeService.getMenuParent(menu, v["Id"].(int), []int{})
+			currentID = v["Id"].(int)
 		}
 	}
 
@@ -42,7 +41,7 @@ func (adminTreeService *AdminTreeService) GetLeftMenu(requestUrl string, user mo
 
 	for k, v := range menu {
 		menu[k]["Url"] = "/" + v["Url"].(string)
-		tempLevel := adminTreeService.GetLevel(int(v["Id"].(int64)), menu, 0)
+		tempLevel := adminTreeService.GetLevel(v["Id"].(int), menu, 0)
 		menu[k]["Level"] = tempLevel
 		if maxLevel <= tempLevel {
 			maxLevel = tempLevel
@@ -90,11 +89,11 @@ func (adminTreeService *AdminTreeService) GetLeftMenu(requestUrl string, user mo
 }
 
 // getMenuParent 获取父级菜单
-func (adminTreeService *AdminTreeService) getMenuParent(menu map[int]orm.Params, myID int, parentIds []int) []int {
+func (adminTreeService *AdminTreeService) getMenuParent(menu map[int]models_gorm.Params, myID int, parentIds []int) []int {
 	for _, a := range menu {
-		if int(a["Id"].(int64)) == myID && int(a["ParentId"].(int64)) != 0 {
-			parentIds = append(parentIds, int(a["ParentId"].(int64)))
-			parentIds = adminTreeService.getMenuParent(menu, int(a["ParentId"].(int64)), parentIds)
+		if a["Id"].(int) == myID && a["ParentId"].(int) != 0 {
+			parentIds = append(parentIds, a["ParentId"].(int))
+			parentIds = adminTreeService.getMenuParent(menu, a["ParentId"].(int), parentIds)
 		}
 	}
 	if len(parentIds) > 0 {
@@ -104,7 +103,7 @@ func (adminTreeService *AdminTreeService) getMenuParent(menu map[int]orm.Params,
 }
 
 // GetLevel 递归获取级别
-func (adminTreeService *AdminTreeService) GetLevel(id int, menu map[int]orm.Params, i int) int {
+func (adminTreeService *AdminTreeService) GetLevel(id int, menu map[int]models_gorm.Params, i int) int {
 	parentID := 0
 	v, ok := menu[id]["ParentId"].(int64)
 	if ok {
@@ -124,8 +123,8 @@ func (adminTreeService *AdminTreeService) GetLevel(id int, menu map[int]orm.Para
 }
 
 // initTree 初始化树
-func (adminTreeService *AdminTreeService) initTree(menu map[int]orm.Params) {
-	adminTreeService.Array = make(map[int]orm.Params)
+func (adminTreeService *AdminTreeService) initTree(menu map[int]models_gorm.Params) {
+	adminTreeService.Array = make(map[int]models_gorm.Params)
 	adminTreeService.Array = menu
 	adminTreeService.Ret = ""
 	adminTreeService.Html = ""
@@ -362,7 +361,7 @@ func (adminTreeService *AdminTreeService) GetTree(myId int, str string, sid int,
 func (adminTreeService *AdminTreeService) Menu(selected int, currentId int) string {
 	var adminMenuService AdminMenuService
 	result := adminMenuService.Menu(currentId)
-	resultKey := make(map[int]orm.Params)
+	resultKey := make(map[int]models_gorm.Params)
 	if result != nil {
 		for _, r := range result {
 			idInt, ok := r["Id"].(int)
@@ -389,30 +388,30 @@ func (adminTreeService *AdminTreeService) AdminMenuTree() string {
 	var adminMenuService AdminMenuService
 	adminMenus := adminMenuService.AllMenu()
 	if adminMenus != nil {
-		result := make(map[int]orm.Params)
+		result := make(map[int]models_gorm.Params)
 		var adminTreeService AdminTreeService
 		for _, adminMenu := range adminMenus {
-			n := adminMenu.Id
+			n := adminMenu.ID
 			//初始化orm.Params map类型
 			if result[n] == nil {
-				result[n] = make(orm.Params)
+				result[n] = make(models_gorm.Params)
 			}
 
-			result[n]["Id"] = adminMenu.Id
-			result[n]["ParentId"] = adminMenu.ParentId
+			result[n]["Id"] = adminMenu.ID
+			result[n]["ParentId"] = adminMenu.ParentID
 			result[n]["Name"] = adminMenu.Name
-			result[n]["Url"] = adminMenu.Url
+			result[n]["Url"] = adminMenu.URL
 			result[n]["Icon"] = adminMenu.Icon
 			result[n]["IsShow"] = adminMenu.IsShow
-			result[n]["SortId"] = adminMenu.SortId
+			result[n]["SortId"] = adminMenu.SortID
 
-			result[n]["Level"] = adminTreeService.GetLevel(adminMenu.Id, result, 0)
-			if adminMenu.ParentId > 0 {
-				result[n]["ParentIdNode"] = ` class="child-of-node-` + strconv.Itoa(adminMenu.ParentId) + `"`
+			result[n]["Level"] = adminTreeService.GetLevel(adminMenu.ID, result, 0)
+			if adminMenu.ParentID > 0 {
+				result[n]["ParentIdNode"] = ` class="child-of-node-` + strconv.Itoa(adminMenu.ParentID) + `"`
 			} else {
 				result[n]["ParentIdNode"] = ""
 			}
-			result[n]["StrManage"] = `<a href="/admin/admin_menu/edit?id=` + strconv.Itoa(adminMenu.Id) + `" class="btn btn-primary btn-xs" title="修改" data-toggle="tooltip"><i class="fa fa-pencil"></i></a> <a class="btn btn-danger btn-xs AjaxButton" data-id="` + strconv.Itoa(adminMenu.Id) + `" data-url="del"  data-confirm-title="删除确认" data-confirm-content=\'您确定要删除ID为 <span class="text-red"> ` + strconv.Itoa(adminMenu.Id) + ` </span> 的数据吗\'  data-toggle="tooltip" title="删除"><i class="fa fa-trash"></i></a>`
+			result[n]["StrManage"] = `<a href="/admin/admin_menu/edit?id=` + strconv.Itoa(adminMenu.ID) + `" class="btn btn-primary btn-xs" title="修改" data-toggle="tooltip"><i class="fa fa-pencil"></i></a> <a class="btn btn-danger btn-xs AjaxButton" data-id="` + strconv.Itoa(adminMenu.ID) + `" data-url="del"  data-confirm-title="删除确认" data-confirm-content=\'您确定要删除ID为 <span class="text-red"> ` + strconv.Itoa(adminMenu.ID) + ` </span> 的数据吗\'  data-toggle="tooltip" title="删除"><i class="fa fa-trash"></i></a>`
 			if adminMenu.IsShow == 1 {
 				result[n]["IsShow"] = "显示"
 			} else {
@@ -435,7 +434,7 @@ func (adminTreeService *AdminTreeService) AdminMenuTree() string {
 }
 
 // AuthorizeHtml 生成授权html
-func (adminTreeService *AdminTreeService) AuthorizeHtml(menu map[int]orm.Params, authMenus []string) string {
+func (adminTreeService *AdminTreeService) AuthorizeHtml(menu map[int]models_gorm.Params, authMenus []string) string {
 	for id := range menu {
 		if utils.InArrayForString(authMenus, strconv.Itoa(id)) {
 			menu[id]["Checked"] = " checked"

@@ -8,7 +8,7 @@ require (
 	github.com/beego/beego/v2 v2.0.2-0.20210205153711-4861b1f69239
 	github.com/dchest/captcha v0.0.0-20200903113550-03f5f0333e1f
 	github.com/fsnotify/fsnotify v1.4.9
-	github.com/go-sql-driver/mysql v1.5.0
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/google/uuid v1.1.2
 	github.com/gookit/validate v1.2.4
 	github.com/lib/pq v1.9.0 // indirect
@@ -28,4 +28,6 @@ require (
 	gopkg.in/check.v1 v1.0.0-20200902074654-038fdea0a05b // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gorm.io/driver/mysql v1.1.1
+	gorm.io/gorm v1.21.12
 )

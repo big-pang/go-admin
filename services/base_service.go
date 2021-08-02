@@ -3,7 +3,8 @@ package services
 import (
 	"github.com/beego/beego/v2/client/orm"
 	"go-admin/utils"
-	"go-admin/utils/page"
+	"go-admin/utils/page_gorm"
+	"gorm.io/gorm"
 	"net/url"
 	"strings"
 )
@@ -19,19 +20,19 @@ type BaseService struct {
 	//禁止删除的数据id,在model中声明就可以了，可不用在此处声明
 	//NoDeletionId []int
 	//分页
-	Pagination page.Pagination
+	Pagination page_gorm.Pagination
 }
 
 // Paginate 分页处理
-func (bs *BaseService) Paginate(seter orm.QuerySeter, listRows int, parameters url.Values) orm.QuerySeter {
-	var pagination page.Pagination
+func (bs *BaseService) Paginate(seter *gorm.DB, listRows int, parameters url.Values) *gorm.DB {
+	var pagination page_gorm.Pagination
 	qs := pagination.Paginate(seter, listRows, parameters)
 	bs.Pagination = pagination
 	return qs
 }
 
 // ScopeWhere 查询处理
-func (bs *BaseService) ScopeWhere(seter orm.QuerySeter, parameters url.Values) orm.QuerySeter {
+func (bs *BaseService) ScopeWhere(seter *gorm.DB, parameters url.Values) *gorm.DB {
 	//关键词like搜索
 	keywords := parameters.Get("_keywords")
 	cond := orm.NewCondition()
@@ -58,7 +59,7 @@ func (bs *BaseService) ScopeWhere(seter orm.QuerySeter, parameters url.Values) o
 				startTimeStr := timeRange[0]
 				endTimeStr := timeRange[1]
 
-				cond = cond.And(key+"__gte", startTimeStr).And(key+"__lte", endTimeStr)
+				cond = cond.And(key+" > ?", startTimeStr).And(key+" < ?", endTimeStr)
 
 				//loc, _ := time.LoadLocation("Local")
 				//startTime, err := time.ParseInLocation("2006-01-02 15:04:05", startTimeStr, loc)
@@ -80,7 +81,7 @@ func (bs *BaseService) ScopeWhere(seter orm.QuerySeter, parameters url.Values) o
 	}
 
 	//将条件语句拼装到主语句中
-	seter = seter.SetCond(cond)
+	seter = seter.Where(cond)
 
 	//排序
 	order := parameters.Get("_order")
@@ -100,12 +101,12 @@ func (bs *BaseService) ScopeWhere(seter orm.QuerySeter, parameters url.Values) o
 	}
 
 	//排序
-	seter = seter.OrderBy(by + order)
+	seter = seter.Order(by + order)
 
 	return seter
 }
 
 // PaginateAndScopeWhere 分页和查询合并，多用于首页列表展示、搜索
-func (bs *BaseService) PaginateAndScopeWhere(seter orm.QuerySeter, listRows int, parameters url.Values) orm.QuerySeter {
+func (bs *BaseService) PaginateAndScopeWhere(seter *gorm.DB, listRows int, parameters url.Values) *gorm.DB {
 	return bs.Paginate(bs.ScopeWhere(seter, parameters), listRows, parameters)
 }

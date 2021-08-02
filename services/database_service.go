@@ -1,7 +1,9 @@
 package services
 
 import (
-	"github.com/beego/beego/v2/client/orm"
+	"go-admin/initialize/mysql"
+	"go-admin/utils"
+	"time"
 )
 
 // DbVersion struct
@@ -13,10 +15,21 @@ type DbVersion struct {
 type DatabaseService struct {
 }
 
+type TableStatus struct {
+	Name       string     `gorm:"column:Name"`
+	Comment    string     `gorm:"column:Comment"`
+	Engine     string     `gorm:"column:Engine"`
+	Collation  string     `gorm:"column:Collation"`
+	Rows       string     `gorm:"column:Rows"`
+	DataLength string     `gorm:"column:Data_length"`
+	CreatedAt  time.Time  `gorm:"column:Create_time"`
+	UpdatedAt  *time.Time `gorm:"column:Update_time"`
+}
+
 // GetMysqlVersion 获取mysql的版本
 func (*DatabaseService) GetMysqlVersion() string {
 	var dbVersion DbVersion
-	err := orm.NewOrm().Raw("select VERSION() as db_version").QueryRow(&dbVersion)
+	err := mysql.DB.Raw("select VERSION() as db_version").First(&dbVersion).Error
 	if err != nil {
 		return "not found."
 	}
@@ -25,32 +38,36 @@ func (*DatabaseService) GetMysqlVersion() string {
 
 // GetTableStatus 获取所有数据表的状态
 func (ds *DatabaseService) GetTableStatus() ([]map[string]string, int) {
-	var maps []orm.Params
 	var resultMaps []map[string]string
-	o := orm.NewOrm()
-	affectRows, err := o.Raw("SHOW TABLE STATUS").Values(&maps)
-
-	if affectRows > 0 && err == nil {
-		for _, item := range maps {
+	var tableStatus []TableStatus
+	result := mysql.DB.Raw("SHOW TABLE STATUS").Find(&tableStatus)
+	if result.RowsAffected > 0 && result.Error == nil {
+		for _, item := range tableStatus {
+			var createTimeStr = ""
+			var updateTimeStr = ""
+			createTimeStr = item.CreatedAt.Format(utils.TimeLayout)
+			if item.UpdatedAt != nil {
+				updateTimeStr = item.UpdatedAt.Format(utils.TimeLayout)
+			}
 			resultMaps = append(resultMaps, map[string]string{
-				"name":        ds.nil2String(item["Name"]),
-				"comment":     ds.nil2String(item["Comment"]),
-				"engine":      ds.nil2String(item["Engine"]),
-				"collation":   ds.nil2String(item["Collation"]),
-				"data_length": ds.nil2String(item["Data_length"]),
-				"created_at":  ds.nil2String(item["created_at"]),
-				"updated_at":  ds.nil2String(item["updated_at"]),
+				"name":        ds.nil2String(item.Name),
+				"comment":     ds.nil2String(item.Comment),
+				"engine":      ds.nil2String(item.Engine),
+				"collation":   ds.nil2String(item.Collation),
+				"rows":        ds.nil2String(item.Rows),
+				"data_length": ds.nil2String(item.DataLength),
+				"created_at":  ds.nil2String(createTimeStr),
+				"updated_at":  ds.nil2String(updateTimeStr),
 			})
 		}
 	}
 
-	return resultMaps, int(affectRows)
+	return resultMaps, int(result.RowsAffected)
 }
 
 // OptimizeTable 优化数据表
 func (*DatabaseService) OptimizeTable(tableName string) bool {
-	o := orm.NewOrm()
-	_, err := o.Raw("OPTIMIZE TABLE `" + tableName + "`").Exec()
+	err := mysql.DB.Exec("OPTIMIZE TABLE `" + tableName + "`").Error
 	if err == nil {
 		return true
 	}
@@ -59,8 +76,7 @@ func (*DatabaseService) OptimizeTable(tableName string) bool {
 
 // RepairTable 修复数据表
 func (*DatabaseService) RepairTable(tableName string) bool {
-	o := orm.NewOrm()
-	_, err := o.Raw("REPAIR TABLE `" + tableName + "`").Exec()
+	err := mysql.DB.Exec("REPAIR TABLE `" + tableName + "`").Error
 	if err == nil {
 		return true
 	}
@@ -69,23 +85,33 @@ func (*DatabaseService) RepairTable(tableName string) bool {
 
 // GetFullColumnsFromTable 获取数据表的所有字段
 func (ds *DatabaseService) GetFullColumnsFromTable(tableName string) []map[string]string {
-	var maps []orm.Params
 	var resultMaps []map[string]string
-	o := orm.NewOrm()
-	affectRows, err := o.Raw("SHOW FULL COLUMNS FROM `" + tableName + "`").Values(&maps)
+	var fullColumens []struct {
+		Field      string
+		Type       string
+		Collation  string
+		Null       string
+		Key        string
+		Default    string
+		Extra      string
+		Privileges string
+		Comment    string
+	}
 
-	if affectRows > 0 && err == nil {
-		for _, item := range maps {
+	result := mysql.DB.Raw("SHOW FULL COLUMNS FROM `" + tableName + "`").Find(&fullColumens)
+
+	if result.RowsAffected > 0 && result.Error == nil {
+		for _, item := range fullColumens {
 			resultMaps = append(resultMaps, map[string]string{
-				"name":       ds.nil2String(item["Field"]),
-				"type":       ds.nil2String(item["Type"]),
-				"collation":  ds.nil2String(item["Collation"]),
-				"null":       ds.nil2String(item["Null"]),
-				"key":        ds.nil2String(item["Key"]),
-				"default":    ds.nil2String(item["Default"]),
-				"extra":      ds.nil2String(item["Extra"]),
-				"privileges": ds.nil2String(item["Privileges"]),
-				"comment":    ds.nil2String(item["Comment"]),
+				"name":       ds.nil2String(item.Field),
+				"type":       ds.nil2String(item.Type),
+				"collation":  ds.nil2String(item.Collation),
+				"null":       ds.nil2String(item.Null),
+				"key":        ds.nil2String(item.Key),
+				"default":    ds.nil2String(item.Default),
+				"extra":      ds.nil2String(item.Extra),
+				"privileges": ds.nil2String(item.Privileges),
+				"comment":    ds.nil2String(item.Comment),
 			})
 		}
 	}

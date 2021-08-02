@@ -1,6 +1,6 @@
 package conf
 
-//后台的基本信息设置
+// Base 后台的基本信息设置
 type Base struct {
 	Name            string `mapstructure:"name" json:"name" yaml:"name"`                                     //后台名称
 	ShortName       string `mapstructure:"short_name" json:"short_name" yaml:"short_name"`                   //后台简称

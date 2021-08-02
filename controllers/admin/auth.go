@@ -101,7 +101,7 @@ func (ac *AuthController) CheckLogin() {
 	}
 
 	//登录日志记录
-	adminLogService.LoginLog(loginUser.Id, ac.Ctx)
+	adminLogService.LoginLog(loginUser.ID, ac.Ctx)
 
 	redirect, _ := ac.GetSession("redirect").(string)
 	if redirect != "" {

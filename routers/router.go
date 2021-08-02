@@ -5,21 +5,18 @@ import (
 	"github.com/beego/beego/v2/server/web/context"
 	"github.com/dchest/captcha"
 	adminControllers "go-admin/controllers/admin"
-	apiControllers "go-admin/controllers/api"
 	"go-admin/middleware"
 	"net/http"
 )
 
 func init() {
 	//授权登录中间件
-	middleware.AuthMiddle()
-
 	web.Get("/", func(ctx *context.Context) {
 		ctx.Redirect(http.StatusFound, "/admin/index/index")
 	})
-
 	//admin模块路由
 	admin := web.NewNamespace("/admin",
+		web.NSBefore(middleware.AuthMiddle),
 		//UEditor控制器
 		web.NSRouter("/editor/server", &adminControllers.EditorController{}, "get,post:Server"),
 
@@ -42,6 +39,7 @@ func init() {
 
 		//操作日志
 		web.NSRouter("/admin_log/index", &adminControllers.AdminLogController{}, "get:Index"),
+		web.NSRouter("/admin_log/view", &adminControllers.AdminLogController{}, "get:View"),
 
 		//菜单管理
 		web.NSRouter("/admin_menu/index", &adminControllers.AdminMenuController{}, "get:Index"),
@@ -113,49 +111,7 @@ func init() {
 		web.NSRouter("/database/repair", &adminControllers.DatabaseController{}, "post:Repair"),
 		//系统管理-开发管理-数据维护-查看详情
 		web.NSRouter("/database/view", &adminControllers.DatabaseController{}, "get,post:View"),
-
-		//用户等级管理
-		web.NSRouter("/user_level/index", &adminControllers.UserLevelController{}, "get:Index"),
-		//用户等级管理-添加界面
-		web.NSRouter("/user_level/add", &adminControllers.UserLevelController{}, "get:Add"),
-		//用户等级管理-添加
-		web.NSRouter("/user_level/create", &adminControllers.UserLevelController{}, "post:Create"),
-		//用户等级管理-修改界面
-		web.NSRouter("/user_level/edit", &adminControllers.UserLevelController{}, "get:Edit"),
-		//用户等级管理-修改
-		web.NSRouter("/user_level/update", &adminControllers.UserLevelController{}, "post:Update"),
-		//用户等级管理-启用
-		web.NSRouter("/user_level/enable", &adminControllers.UserLevelController{}, "post:Enable"),
-		//用户等级管理-禁用
-		web.NSRouter("/user_level/disable", &adminControllers.UserLevelController{}, "post:Disable"),
-		//用户等级管理-删除
-		web.NSRouter("/user_level/del", &adminControllers.UserLevelController{}, "post:Del"),
-		//用户等级管理-导出
-		web.NSRouter("/user_level/export", &adminControllers.UserLevelController{}, "get:Export"),
-
-		//用户管理
-		web.NSRouter("/user/index", &adminControllers.UserController{}, "get:Index"),
-		//用户管理-添加界面
-		web.NSRouter("/user/add", &adminControllers.UserController{}, "get:Add"),
-		//用户管理-添加
-		web.NSRouter("/user/create", &adminControllers.UserController{}, "post:Create"),
-		//用户管理-修改界面
-		web.NSRouter("/user/edit", &adminControllers.UserController{}, "get:Edit"),
-		//用户管理-修改
-		web.NSRouter("/user/update", &adminControllers.UserController{}, "post:Update"),
-		//用户管理-启用
-		web.NSRouter("/user/enable", &adminControllers.UserController{}, "post:Enable"),
-		//用户管理-禁用
-		web.NSRouter("/user/disable", &adminControllers.UserController{}, "post:Disable"),
-		//用户管理-删除
-		web.NSRouter("/user/del", &adminControllers.UserController{}, "post:Del"),
-		//用户管理-导出
-		web.NSRouter("/user/export", &adminControllers.UserController{}, "get:Export"),
-	)
-	api := web.NewNamespace("/api",
-		web.NSRouter("/location_and_time", &apiControllers.LocationController{}, "get:LocationAndTime"),
 	)
 
-	web.AddNamespace(api)
 	web.AddNamespace(admin)
 }

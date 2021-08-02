@@ -2,14 +2,16 @@ package services
 
 import (
 	"encoding/json"
-	beego "github.com/beego/beego/v2/adapter"
+	"fmt"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web/context"
 	"go-admin/global"
-	"go-admin/models"
+	"go-admin/initialize/mysql"
+	"go-admin/models_gorm"
+	"go-admin/utils"
 	"go-admin/utils/encrypter"
-	"go-admin/utils/page"
+	"go-admin/utils/page_gorm"
 
-	"github.com/beego/beego/v2/client/orm"
 	"net/url"
 	"time"
 )
@@ -20,89 +22,105 @@ type AdminLogService struct {
 }
 
 // CreateAdminLog 创建操作日志
-func (*AdminLogService) CreateAdminLog(loginUser *models.AdminUser, menu *models.AdminMenu, url string, ctx *context.Context) {
-	var adminLog models.AdminLog
+func (*AdminLogService) CreateAdminLog(loginUser *models_gorm.AdminUsers, menu *models_gorm.AdminMenus, url string, ctx *context.Context) {
+	var adminLog models_gorm.AdminLogs
 
 	if loginUser == nil {
-		adminLog.AdminUserId = 0
+		adminLog.AdminUserID = 0
 	} else {
-		adminLog.AdminUserId = loginUser.Id
+		adminLog.AdminUserID = loginUser.ID
 	}
 	adminLog.Name = menu.Name
 	adminLog.LogMethod = menu.LogMethod
-	adminLog.Url = url
-	adminLog.LogIp = ctx.Input.IP()
+	adminLog.URL = url
+	adminLog.LogIP = ctx.Input.IP()
 	adminLog.CreatedAt = time.Now()
 	adminLog.UpdatedAt = time.Now()
 
-	o := orm.NewOrm()
 	//开启事务
-	to, err := o.Begin()
+	tx := mysql.DB.Begin()
 
-	adminLogID, err := to.Insert(&adminLog)
+	err := tx.Create(&adminLog).Error
 	if err != nil {
-		to.Rollback()
-		beego.Error(err)
+		tx.Rollback()
+		logs.Error(err)
 		return
 	}
+	requestData := ctx.Request.PostForm
 
+	for key, _ := range requestData {
+		if utils.InArrayForString([]string{"pwd", "key", "key2"}, key) {
+			requestData.Set(key, "******")
+		}
+		if utils.InArrayForString([]string{"password", "new_password", "renew_password"}, key) {
+			requestData.Set(key, utils.GetMd5String(requestData.Get(key)))
+		}
+	}
 	//adminLogData数据表添加数据
-	jsonData, _ := json.Marshal(ctx.Request.PostForm)
+	jsonData, _ := json.Marshal(requestData)
 	cryptData := encrypter.Encrypt(jsonData, []byte(global.BA_CONFIG.Other.LogAesKey))
-	var adminLogData models.AdminLogData
-	adminLogData.AdminLogId = int(adminLogID)
+	var adminLogData models_gorm.AdminLogData
+	adminLogData.AdminLogID = adminLog.ID
 	adminLogData.Data = cryptData
-	_, err = to.Insert(&adminLogData)
+	err = tx.Create(&adminLogData).Error
 	if err != nil {
-		to.Rollback()
-		beego.Error(err)
+		tx.Rollback()
+		logs.Error(err)
 		return
 	}
-	to.Commit()
+	tx.Commit()
 }
 
 // LoginLog 登录日志
 func (*AdminLogService) LoginLog(loginUserID int, ctx *context.Context) {
-	var adminLog models.AdminLog
-	adminLog.AdminUserId = loginUserID
+	var adminLog models_gorm.AdminLogs
+	adminLog.AdminUserID = loginUserID
 	adminLog.Name = "登录"
-	adminLog.Url = "admin/auth/login"
+	adminLog.URL = "admin/auth/login"
 	adminLog.LogMethod = "POST"
-	adminLog.LogIp = ctx.Input.IP()
+	adminLog.LogIP = ctx.Input.IP()
 	adminLog.CreatedAt = time.Now()
 	adminLog.UpdatedAt = time.Now()
 
-	o := orm.NewOrm()
-
 	//开启事务
-	to, err := o.Begin()
-
-	adminLogID, err := o.Insert(&adminLog)
+	tx := mysql.DB.Begin()
+	err := tx.Create(&adminLog).Error
 	if err != nil {
-		to.Rollback()
-		beego.Error(err)
+		tx.Rollback()
+		logs.Error(err)
 		return
 	}
 
+	requestData := ctx.Request.PostForm
+
+	for key, _ := range requestData {
+		if utils.InArrayForString([]string{"pwd", "key", "key2"}, key) {
+			requestData.Set(key, "******")
+		}
+		if utils.InArrayForString([]string{"password", "new_password", "renew_password"}, key) {
+			requestData.Set(key, utils.GetMd5String(requestData.Get(key)))
+		}
+	}
 	//adminLogData数据表添加数据
-	jsonData, _ := json.Marshal(ctx.Request.PostForm)
+	jsonData, _ := json.Marshal(requestData)
 	cryptData := encrypter.Encrypt(jsonData, []byte(global.BA_CONFIG.Other.LogAesKey))
 
-	var adminLogData models.AdminLogData
-	adminLogData.AdminLogId = int(adminLogID)
+	var adminLogData models_gorm.AdminLogData
+	adminLogData.AdminLogID = adminLog.ID
 	adminLogData.Data = cryptData
-	_, err = o.Insert(&adminLogData)
+	err = tx.Create(&adminLogData).Error
 	if err != nil {
-		to.Rollback()
-		beego.Error(err)
+		tx.Rollback()
+		logs.Error(err)
 		return
 	}
-	to.Commit()
+	tx.Commit()
 }
 
 // GetCount 获取admin_log 总数
 func (*AdminLogService) GetCount() int {
-	count, err := orm.NewOrm().QueryTable(new(models.AdminLog)).Count()
+	var count int64
+	err := mysql.DB.Model(models_gorm.AdminLogs{}).Count(&count).Error
 	if err != nil {
 		return 0
 	}
@@ -110,17 +128,27 @@ func (*AdminLogService) GetCount() int {
 }
 
 // GetPaginateData 获取所有adminuser
-func (als *AdminLogService) GetPaginateData(listRows int, params url.Values) ([]*models.AdminLog, page.Pagination) {
+func (als *AdminLogService) GetPaginateData(listRows int, params url.Values) ([]*models_gorm.AdminLogs, page_gorm.Pagination) {
 	//搜索、查询字段赋值
-	als.SearchField = append(als.SearchField, new(models.AdminLog).SearchField()...)
-	als.WhereField = append(als.WhereField, new(models.AdminLog).WhereField()...)
-	als.TimeField = append(als.TimeField, new(models.AdminLog).TimeField()...)
+	als.SearchField = append(als.SearchField, new(models_gorm.AdminLogs).SearchField()...)
+	als.WhereField = append(als.WhereField, new(models_gorm.AdminLogs).WhereField()...)
+	als.TimeField = append(als.TimeField, new(models_gorm.AdminLogs).TimeField()...)
 
-	var adminLog []*models.AdminLog
-	o := orm.NewOrm().QueryTable(new(models.AdminLog))
-	_, err := als.PaginateAndScopeWhere(o, listRows, params).All(&adminLog)
+	var adminLog []*models_gorm.AdminLogs
+	o := mysql.DB.Model(models_gorm.AdminLogs{})
+	err := als.PaginateAndScopeWhere(o, listRows, params).Find(&adminLog).Error
 	if err != nil {
 		return nil, als.Pagination
 	}
 	return adminLog, als.Pagination
+}
+
+func (als *AdminLogService) GetItemAdminLog(id int) *models_gorm.AdminLogs {
+	var adminLog models_gorm.AdminLogs
+	err := mysql.DB.Model(adminLog).Preload("AdminUser").Joins("Data").First(&adminLog, id).Error
+	if err != nil {
+		return nil
+	}
+	logs.Debug(fmt.Sprintf("数据为：%+v\n", adminLog))
+	return &adminLog
 }

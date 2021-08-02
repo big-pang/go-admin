@@ -3,11 +3,11 @@ package services
 import (
 	"errors"
 	beego "github.com/beego/beego/v2/adapter"
-	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/server/web/context"
 	"github.com/google/uuid"
 	"go-admin/global"
-	"go-admin/models"
+	"go-admin/initialize/mysql"
+	"go-admin/models_gorm"
 	"go-admin/utils"
 	"io"
 	"mime/multipart"
@@ -17,7 +17,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // AttachmentService struct
@@ -25,7 +24,7 @@ type AttachmentService struct {
 }
 
 // Upload 上传单个文件
-func (*AttachmentService) Upload(ctx *context.Context, name string, adminUserId int, userId int) (*models.Attachment, error) {
+func (*AttachmentService) Upload(ctx *context.Context, name string, adminUserID int, userID int) (*models_gorm.Attachments, error) {
 	file, h, err := ctx.Request.FormFile(name)
 	if err != nil {
 		return nil, err
@@ -59,33 +58,30 @@ func (*AttachmentService) Upload(ctx *context.Context, name string, adminUserId 
 	defer f.Close()
 	io.Copy(f, file)
 
-	attachmentInfo := models.Attachment{
-		AdminUserId:  adminUserId,
-		UserId:       userId,
+	attachmentInfo := models_gorm.Attachments{
+		AdminUserID:  adminUserID,
+		UserID:       userID,
 		OriginalName: h.Filename,
 		SaveName:     saveName,
 		SavePath:     saveRealDir + saveName + fileExt,
-		Url:          saveURL,
+		URL:          saveURL,
 		Extension:    strings.TrimLeft(fileExt, "."),
 		Mime:         h.Header.Get("Content-Type"),
 		Size:         h.Size,
 		Md5:          utils.GetMd5String(saveName),
 		Sha1:         utils.GetSha1String(saveName),
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
 	}
 
-	insertID, err := orm.NewOrm().Insert(&attachmentInfo)
+	err = mysql.DB.Model(attachmentInfo).Create(&attachmentInfo).Error
 	if err == nil {
-		attachmentInfo.Id = int(insertID)
 		return &attachmentInfo, nil
 	}
 	return nil, err
 }
 
 // UploadMulti 上传多个文件
-func (*AttachmentService) UploadMulti(ctx *context.Context, name string, adminUserId int, userId int) ([]*models.Attachment, error) {
-	var result []*models.Attachment
+func (*AttachmentService) UploadMulti(ctx *context.Context, name string, adminUserId int, userId int) ([]*models_gorm.Attachments, error) {
+	var result []*models_gorm.Attachments
 	//GetFiles return multi-upload files
 	files, ok := ctx.Request.MultipartForm.File[name]
 	if !ok {
@@ -140,25 +136,23 @@ func (*AttachmentService) UploadMulti(ctx *context.Context, name string, adminUs
 		defer f.Close()
 		io.Copy(f, file)
 
-		attachmentInfo := models.Attachment{
-			AdminUserId:  adminUserId,
-			UserId:       userId,
+		attachmentInfo := models_gorm.Attachments{
+			AdminUserID:  adminUserId,
+			UserID:       userId,
 			OriginalName: h.Filename,
 			SaveName:     saveName,
 			SavePath:     saveRealDir + saveName + fileExt,
-			Url:          saveURL,
+			URL:          saveURL,
 			Extension:    strings.TrimLeft(fileExt, "."),
 			Mime:         h.Header.Get("Content-Type"),
 			Size:         h.Size,
 			Md5:          utils.GetMd5String(saveName),
 			Sha1:         utils.GetSha1String(saveName),
-			CreatedAt:    time.Now(),
-			UpdatedAt:    time.Now(),
 		}
 
-		insertID, err := orm.NewOrm().Insert(&attachmentInfo)
+		err = mysql.DB.Model(attachmentInfo).Create(&attachmentInfo).Error
+
 		if err == nil {
-			attachmentInfo.Id = int(insertID)
 			//return &attachmentInfo, nil
 			result = append(result, &attachmentInfo)
 		} else {

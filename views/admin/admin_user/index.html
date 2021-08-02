@@ -75,10 +75,10 @@
                         <tr>
                             <td>
                                 <input type="checkbox" onclick="checkThis(this)" name="data-checkbox"
-                                       data-id="{{$item.Id}}" class="checkbox data-list-check" value="{{$item.Id}}"
+                                       data-id="{{$item.ID}}" class="checkbox data-list-check" value="{{$item.ID}}"
                                        placeholder="选择/取消">
                             </td>
-                            <td>{{$item.Id}}</td>
+                            <td>{{$item.ID}}</td>
                             <td>{{$item.Nickname}}</td>
                             <td>{{$item.Username}}</td>
                             <td>
@@ -86,28 +86,33 @@
                                 <small class="label bg-blue">{{$admin_role.Name}}</small>
                                 {{end}}
                             </td>
-                            <td>{{if eq 1 $item.Status}} <span class="label label-success">是</span> {{else}} <span class="label label-warning">否</span> {{end}}</td>
+                            <td>{{if eq 1 $item.Status}} <span class="label label-success">是</span> {{else}}
+                                <span class="label label-warning">否</span> {{end}}
+                            </td>
                             <td class="td-do">
-                                <a href="/admin/admin_user/edit?id={{$item.Id}}"
+                                <a href="/admin/admin_user/edit?id={{$item.ID}}"
                                    class="btn btn-primary btn-xs" title="修改" data-toggle="tooltip">
                                     <i class="fa fa-pencil"></i>
                                 </a>
 
-                                <a class="btn btn-danger btn-xs AjaxButton" data-toggle="tooltip" title="删除" data-csrf-token="" data-id="{{$item.Id}}" data-confirm-title="删除确认" data-confirm-content='您确定要删除ID为 <span class="text-red">{{$item.Id}}</span> 的数据吗' data-url="/admin/admin_user/del">
+                                <a class="btn btn-danger btn-xs AjaxButton" data-toggle="tooltip" title="删除"
+                                   data-csrf-token="" data-id="{{$item.ID}}" data-confirm-title="删除确认"
+                                   data-confirm-content='您确定要删除ID为 <span class="text-red">{{$item.ID}}</span> 的数据吗'
+                                   data-url="/admin/admin_user/del">
                                     <i class="fa fa-trash"></i>
                                 </a>
 
                                 {{if eq 1 $item.Status}}
                                 <a class="btn btn-warning btn-xs AjaxButton" data-toggle="tooltip" title="禁用"
-                                   data-id="{{$item.Id}}" data-confirm-title="禁用确认"
-                                   data-confirm-content='您确定要禁用ID为 <span class="text-red">{{$item.Id}}</span> 的数据吗'
+                                   data-id="{{$item.ID}}" data-confirm-title="禁用确认"
+                                   data-confirm-content='您确定要禁用ID为 <span class="text-red">{{$item.ID}}</span> 的数据吗'
                                    data-url="/admin/admin_user/disable">
                                     <i class="fa fa-circle"></i>
                                 </a>
                                 {{else}}
                                 <a class="btn btn-success btn-xs AjaxButton" data-toggle="tooltip" title="启用"
-                                   data-id="{{$item.Id}}" data-confirm-title="启用确认"
-                                   data-confirm-content='您确定要启用ID为 <span class="text-red">{{$item.Id}}</span> 的数据吗'
+                                   data-id="{{$item.ID}}" data-confirm-title="启用确认"
+                                   data-confirm-content='您确定要启用ID为 <span class="text-red">{{$item.ID}}</span> 的数据吗'
                                    data-url="/admin/admin_user/enable">
                                     <i class="fa fa-circle"></i>
                                 </a>

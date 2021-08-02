@@ -1,9 +1,10 @@
 package main
 
 import (
-	beego "github.com/beego/beego/v2/adapter"
+	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 	_ "go-admin/initialize/conf"
-	_ "go-admin/initialize/mysql"
+	"go-admin/initialize/mysql"
 	_ "go-admin/initialize/session"
 	_ "go-admin/routers"
 	_ "go-admin/utils/template"
@@ -12,8 +13,8 @@ import (
 func main() {
 
 	//输出文件名和行号
-	beego.SetLogFuncCall(true)
-
+	logs.SetLogFuncCall(true)
 	//启动beego
-	beego.Run()
+	web.Run()
+	mysql.CloseDB()
 }
